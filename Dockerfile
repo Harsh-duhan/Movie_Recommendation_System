@@ -9,8 +9,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
-COPY tmdb_5000_movies.csv tmdb_5000_movies.csv
-COPY tmdb_5000_credits.csv tmdb_5000_credits.csv
+COPY movies_5000.csv movies_5000.csv
+COPY movie_credits_5000.csv movie_credits_5000.csv
 
 EXPOSE 8000
 

@@ -13,8 +13,15 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT
-MOVIES_FILE = DATA_DIR / "tmdb_5000_movies.csv"
-CREDITS_FILE = DATA_DIR / "tmdb_5000_credits.csv"
+MOVIES_FILE_CANDIDATES = (DATA_DIR / "movies_5000.csv", DATA_DIR / "tmdb_5000_movies.csv")
+CREDITS_FILE_CANDIDATES = (DATA_DIR / "movie_credits_5000.csv", DATA_DIR / "tmdb_5000_credits.csv")
+
+
+def first_existing_path(candidates: tuple[Path, ...]) -> Path:
+    for path in candidates:
+        if path.exists():
+            return path
+    return candidates[0]
 
 
 class MovieNotFoundError(LookupError):
@@ -75,7 +82,13 @@ def cosine_similarity(counter_a: Counter, norm_a: float, counter_b: Counter, nor
 
 
 class MovieRecommender:
-    def __init__(self, movies_file: Path = MOVIES_FILE, credits_file: Path = CREDITS_FILE) -> None:
+    def __init__(
+        self,
+        movies_file: Path | None = None,
+        credits_file: Path | None = None,
+    ) -> None:
+        movies_file = movies_file or first_existing_path(MOVIES_FILE_CANDIDATES)
+        credits_file = credits_file or first_existing_path(CREDITS_FILE_CANDIDATES)
         self.movies_file = movies_file
         self.credits_file = credits_file
         self.movies = self._load_movies()
