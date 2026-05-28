@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: tmdb-movie-recommender
+    env: docker
+    plan: free
+    healthCheckPath: /health

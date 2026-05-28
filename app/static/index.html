@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TMDB Movie Recommender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>Binge Recommender</span>
+          </div>
+          <h1 id="page-title">Find movies that feel like the one already stuck in your head.</h1>
+          <p>
+            Search a title and get content-based recommendations from genre, cast, director, and keyword signals.
+          </p>
+        </div>
+
+        <form class="search-panel" id="recommend-form">
+          <label for="movie-title">Movie title</label>
+          <div class="search-row">
+            <input id="movie-title" name="title" type="search" value="The Godfather" autocomplete="off" />
+            <button type="submit">Recommend</button>
+          </div>
+          <div class="quick-picks" aria-label="Quick movie picks">
+            <button type="button" data-title="Avatar">Avatar</button>
+            <button type="button" data-title="Donnie Darko">Donnie Darko</button>
+            <button type="button" data-title="Notting Hill">Notting Hill</button>
+            <button type="button" data-title="Despicable Me">Despicable Me</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="status-grid" aria-label="Dataset summary">
+        <article>
+          <span id="stat-movies">--</span>
+          <p>movies indexed</p>
+        </article>
+        <article>
+          <span id="stat-genres">--</span>
+          <p>genres mapped</p>
+        </article>
+        <article>
+          <span id="stat-directors">--</span>
+          <p>directors analyzed</p>
+        </article>
+      </section>
+
+      <section class="result-layout">
+        <aside class="selected-card" id="selected-card" aria-live="polite">
+          <div class="empty-state">
+            <div class="poster-skeleton" aria-hidden="true"></div>
+            <p>Choose a movie to see its taste profile and predicted neighbor score.</p>
+          </div>
+        </aside>
+
+        <section class="recommendation-panel" aria-labelledby="recommendation-title">
+          <div class="panel-header">
+            <div>
+              <h2 id="recommendation-title">Recommended Movies</h2>
+              <p id="recommendation-subtitle">Results will appear here.</p>
+            </div>
+            <select id="limit-select" aria-label="Number of recommendations">
+              <option value="6">6 results</option>
+              <option value="10" selected>10 results</option>
+              <option value="15">15 results</option>
+            </select>
+          </div>
+          <div class="message" id="message" hidden></div>
+          <div class="recommendations" id="recommendations"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
