@@ -5,6 +5,12 @@ const message = document.querySelector("#message");
 const selectedCard = document.querySelector("#selected-card");
 const recommendations = document.querySelector("#recommendations");
 const subtitle = document.querySelector("#recommendation-subtitle");
+const agentToggle = document.querySelector("#agent-toggle");
+const agentPanel = document.querySelector("#agent-panel");
+const agentForm = document.querySelector("#agent-form");
+const agentInput = document.querySelector("#agent-input");
+const agentThread = document.querySelector("#agent-thread");
+const agentClose = document.querySelector("#agent-close");
 
 const posterColors = [
   ["#d3422f", "#e9b44c"],
@@ -149,3 +155,64 @@ loadStats().catch(() => {
   document.querySelector("#stat-movies").textContent = "--";
 });
 recommend();
+
+
+function addAgentMessage(text, role) {
+  const bubble = document.createElement("div");
+  bubble.className = `agent-bubble agent-bubble-${role}`;
+  bubble.textContent = text;
+  agentThread.appendChild(bubble);
+  agentThread.scrollTop = agentThread.scrollHeight;
+}
+
+function setAgentOpen(isOpen) {
+  agentPanel.hidden = !isOpen;
+  agentToggle.setAttribute("aria-expanded", String(isOpen));
+  agentToggle.classList.toggle("active", isOpen);
+  if (isOpen) {
+    agentInput.focus();
+  }
+}
+
+agentToggle.addEventListener("click", () => {
+  setAgentOpen(agentPanel.hidden);
+});
+
+agentClose.addEventListener("click", () => {
+  setAgentOpen(false);
+  agentToggle.focus();
+});
+
+agentForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const question = agentInput.value.trim();
+  if (!question) {
+    agentInput.focus();
+    return;
+  }
+
+  addAgentMessage(question, "user");
+  agentInput.value = "";
+  agentInput.disabled = true;
+  const pending = "Thinking...";
+  addAgentMessage(pending, "assistant");
+  const pendingBubble = agentThread.lastElementChild;
+
+  try {
+    const response = await fetch("/api/agent/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: question }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "The movie agent could not answer right now.");
+    }
+    pendingBubble.textContent = payload.answer;
+  } catch (error) {
+    pendingBubble.textContent = error.message || "The movie agent could not answer right now.";
+  } finally {
+    agentInput.disabled = false;
+    agentInput.focus();
+  }
+});

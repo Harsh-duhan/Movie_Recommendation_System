@@ -3,12 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
+from pydantic import BaseModel, Field
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .recommender import MovieNotFoundError, MovieRecommender, get_recommender
+from core_code import ask_movie_agent
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -24,11 +26,19 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+class AgentChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=800)
+
+
+class AgentChatResponse(BaseModel):
+    answer: str
 
 
 @app.get("/", include_in_schema=False)
@@ -63,3 +73,17 @@ def recommend_movies(
         raise HTTPException(status_code=404, detail={"message": error.args[0], "suggestions": suggestions}) from error
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+
+@app.post("/api/agent/chat", response_model=AgentChatResponse)
+def chat_with_movie_agent(payload: AgentChatRequest) -> AgentChatResponse:
+    try:
+        answer = ask_movie_agent(payload.message)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(status_code=502, detail="The movie agent could not answer right now.") from error
+    return AgentChatResponse(answer=answer)

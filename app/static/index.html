@@ -79,6 +79,26 @@
       </section>
     </main>
 
+    <section class="agent-widget" aria-label="Movie knowledge agent">
+      <button class="agent-toggle" id="agent-toggle" type="button" aria-expanded="false" aria-controls="agent-panel">Ask Agent</button>
+      <div class="agent-panel" id="agent-panel" hidden>
+        <div class="agent-panel-header">
+          <div>
+            <strong>Movie Agent</strong>
+            <span>Ask about movies or web series</span>
+          </div>
+          <button class="agent-close" id="agent-close" type="button" aria-label="Close movie agent">×</button>
+        </div>
+        <div class="agent-thread" id="agent-thread" aria-live="polite">
+          <div class="agent-bubble agent-bubble-assistant">Ask me about movies, web series, plots, actors, directors, or what to watch next.</div>
+        </div>
+        <form class="agent-form" id="agent-form">
+          <input id="agent-input" name="message" type="text" maxlength="800" placeholder="Ask about a movie..." autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
     <script src="/static/app.js" defer></script>
   </body>
 </html>
