@@ -54,7 +54,7 @@ class MovieKnowledgeAgent:
                 "Movie agent dependencies are missing. Install langchain, langchain-groq, and python-dotenv."
             )
         if not os.environ.get("GROQ_API_KEY"):
-            raise RuntimeError("GROQ_API_KEY is not set, so the movie agent cannot answer yet.")
+            raise RuntimeError("The movie agent cannot answer yet. Try Again Later")
 
         self.llm = init_chat_model(os.environ.get("GROQ_MODEL", GROQ_MODEL), model_provider="groq")
         self.messages: list[Any] = [SystemMessage(content=SYSTEM_PROMPT)]
