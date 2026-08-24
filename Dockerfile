@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY core_code.py .
 COPY movies_5000.csv movies_5000.csv
 COPY movie_credits_5000.csv movie_credits_5000.csv
 
