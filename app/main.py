@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import logging
+import traceback
 from pathlib import Path
 from typing import Annotated
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -85,5 +90,6 @@ def chat_with_movie_agent(payload: AgentChatRequest) -> AgentChatResponse:
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
     except Exception as error:
+        logger.error("Agent error: %s", traceback.format_exc())
         raise HTTPException(status_code=502, detail="The movie agent could not answer right now.") from error
     return AgentChatResponse(answer=answer)

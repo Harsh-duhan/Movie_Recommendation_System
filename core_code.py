@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from threading import Lock
 from typing import Any
 
 try:
     from dotenv import load_dotenv
-except ImportError:  # pragma: no cover - dependency may be missing until requirements install
+except ImportError:  
     load_dotenv = None
 
 try:
     from langchain.chat_models import init_chat_model
     from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-except ImportError:  # pragma: no cover - surfaced as a friendly API error
+except ImportError: 
     init_chat_model = None
     AIMessage = HumanMessage = SystemMessage = None
 
@@ -29,6 +30,32 @@ plots, recommendations, or viewing knowledge. If the user asks about anything
 else, reply exactly: I can not help with that.
 Use original wording and concise, helpful explanations.
 """.strip()
+
+
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
+_MD_BOLD_ITALIC_RE = re.compile(r"\*{1,3}([^*]+?)\*{1,3}")
+_MD_HEADING_RE = re.compile(r"^#{1,6}\s*", re.MULTILINE)
+_MD_HR_RE = re.compile(r"^[-*_]{3,}\s*$", re.MULTILINE)
+_EXTRA_BLANK_RE = re.compile(r"\n{3,}")
+
+
+def clean_response(text: str) -> str:
+    """Return *text* as clean, human-readable plain text.
+
+    Removes:
+    * Markdown bold / italic markers  (**word**, *word*, ***word***)
+    * Markdown ATX headings           (## Title  ->  Title)
+    * Markdown horizontal rules       (---, ***)
+    * HTML tags                       (<b>, <br>, etc.)
+
+    Then collapses excessive blank lines and strips leading/trailing whitespace.
+    """
+    text = _HTML_TAG_RE.sub("", text)           # strip HTML tags
+    text = _MD_BOLD_ITALIC_RE.sub(r"\1", text)  # **bold** / *italic* -> plain
+    text = _MD_HEADING_RE.sub("", text)          # ## Heading -> Heading
+    text = _MD_HR_RE.sub("", text)               # --- / *** dividers
+    text = _EXTRA_BLANK_RE.sub("\n\n", text)     # max one blank line
+    return text.strip()
 
 
 def load_agent_environment() -> None:
@@ -68,7 +95,7 @@ class MovieKnowledgeAgent:
         with self.lock:
             self.messages.append(HumanMessage(content=question))
             response = self.llm.invoke(self.messages)
-            answer = str(getattr(response, "content", response)).strip()
+            answer = clean_response(str(getattr(response, "content", response)))
             self.messages.append(AIMessage(content=answer))
             return answer
 
