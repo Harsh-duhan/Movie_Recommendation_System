@@ -51,7 +51,7 @@ def home() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
-@app.get("/health")
+@app.get("/health", methods=["GET", "HEAD"])
 def health(recommender: Annotated[MovieRecommender, Depends(get_recommender)]) -> dict[str, object]:
     return {"status": "ok", **recommender.stats()}
 
